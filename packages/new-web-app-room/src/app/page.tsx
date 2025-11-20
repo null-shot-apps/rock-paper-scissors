@@ -175,7 +175,8 @@ export default function RockPaperScissorsGame() {
           <div className="text-white text-2xl font-bold mt-4">YOU</div>
         </div>
 
-          {/* Game State Display */}
+        {/* Game State Display */}
+        <div className="flex-1 flex items-center justify-center">
           {gameState === 'waiting' && (
             <div className="text-center">
               <p className="text-2xl mb-6">Ready for battle?</p>
@@ -248,16 +249,17 @@ export default function RockPaperScissorsGame() {
         {gameState === 'waiting' && (
           <div className="mt-8 text-center text-lg text-gray-300">
             <p>Choose Rock, Paper, or Scissors during the countdown!</p>
-            <p>If you don't choose in time, you automatically lose!</p>
+            <p>If you don&apos;t choose in time, you automatically lose!</p>
             <p>First to 0 HP loses the battle!</p>
           </div>
         )}
       </div>
-
-
     </div>
   );
 }
+
+
+
 
 
 
