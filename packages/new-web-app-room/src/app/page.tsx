@@ -111,13 +111,13 @@ export default function RockPaperScissorsGame() {
           setPlayerBouncing(true);
           setComputerHit(true);
           setComputerHealth(prev => Math.max(0, prev - 1));
-        }, 600);
+        }, 1000);
         setTimeout(() => {
           // Reset all animations
           setPlayerFlying(false);
           setPlayerBouncing(false);
           setComputerHit(false);
-        }, 1200);
+        }, 1500);
       } else if (winner === 'computer') {
         setResult('Computer Wins!');
         // Pokemon-style flying attack animation
@@ -127,13 +127,13 @@ export default function RockPaperScissorsGame() {
           setComputerBouncing(true);
           setPlayerHit(true);
           setPlayerHealth(prev => Math.max(0, prev - 1));
-        }, 600);
+        }, 1000);
         setTimeout(() => {
           // Reset all animations
           setComputerFlying(false);
           setComputerBouncing(false);
           setPlayerHit(false);
-        }, 1200);
+        }, 1500);
       } else {
         setResult('Tie!');
       }
@@ -176,41 +176,73 @@ export default function RockPaperScissorsGame() {
         }
         
         @keyframes flyRight {
-          0% { transform: translateX(0) scale(1); }
-          50% { transform: translateX(400px) scale(1.2); }
-          100% { transform: translateX(400px) scale(1.2); }
+          0% { 
+            transform: translateX(0) translateY(0) scale(1); 
+          }
+          20% { 
+            transform: translateX(200px) translateY(-80px) scale(1.2); 
+          }
+          40% { 
+            transform: translateX(500px) translateY(-120px) scale(1.4); 
+          }
+          60% { 
+            transform: translateX(700px) translateY(-100px) scale(1.3); 
+          }
+          80% { 
+            transform: translateX(900px) translateY(-40px) scale(1.2); 
+          }
+          100% { 
+            transform: translateX(1000px) translateY(0) scale(1.5); 
+          }
         }
         
         @keyframes flyLeft {
-          0% { transform: translateX(0) scale(1); }
-          50% { transform: translateX(-400px) scale(1.2); }
-          100% { transform: translateX(-400px) scale(1.2); }
+          0% { 
+            transform: translateX(0) translateY(0) scale(1); 
+          }
+          20% { 
+            transform: translateX(-200px) translateY(-80px) scale(1.2); 
+          }
+          40% { 
+            transform: translateX(-500px) translateY(-120px) scale(1.4); 
+          }
+          60% { 
+            transform: translateX(-700px) translateY(-100px) scale(1.3); 
+          }
+          80% { 
+            transform: translateX(-900px) translateY(-40px) scale(1.2); 
+          }
+          100% { 
+            transform: translateX(-1000px) translateY(0) scale(1.5); 
+          }
         }
         
         @keyframes bounceBack {
-          0% { transform: translateX(400px) scale(1.2); }
-          100% { transform: translateX(0) scale(1); }
+          0% { transform: translateX(1000px) translateY(0) scale(1.5); }
+          100% { transform: translateX(0) translateY(0) scale(1); }
         }
         
         @keyframes bounceBackLeft {
-          0% { transform: translateX(-400px) scale(1.2); }
-          100% { transform: translateX(0) scale(1); }
+          0% { transform: translateX(-1000px) translateY(0) scale(1.5); }
+          100% { transform: translateX(0) translateY(0) scale(1); }
         }
         
         .flying-right {
-          animation: flyRight 0.6s ease-out forwards;
+          animation: flyRight 1s ease-out forwards;
+          z-index: 50;
         }
         
         .flying-left {
-          animation: flyLeft 0.6s ease-out forwards;
+          animation: flyLeft 1s ease-out forwards;
+          z-index: 50;
         }
         
         .bouncing-right {
-          animation: bounceBack 0.3s ease-in forwards;
+          animation: bounceBack 0.5s ease-in forwards;
         }
         
         .bouncing-left {
-          animation: bounceBackLeft 0.3s ease-in forwards;
+          animation: bounceBackLeft 0.5s ease-in forwards;
         }
       `}</style>
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
@@ -354,6 +386,10 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
+
+
 
 
 
