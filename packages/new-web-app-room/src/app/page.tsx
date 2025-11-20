@@ -221,7 +221,7 @@ export default function RockPaperScissorsGame() {
           </div>
           <div className="text-white text-2xl font-bold mt-4">COMPUTER</div>
         </div>
-      </div>
+      </div>,
 
       {/* Choice Buttons - Bottom Center */}
       <div className="pb-8">
@@ -258,6 +258,7 @@ export default function RockPaperScissorsGame() {
     </div>
   );
 }
+
 
 
 
