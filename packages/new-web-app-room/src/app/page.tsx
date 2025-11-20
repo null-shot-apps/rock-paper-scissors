@@ -6,9 +6,9 @@ type Choice = 'rock' | 'paper' | 'scissors' | null;
 type GameState = 'waiting' | 'countdown' | 'choosing' | 'reveal' | 'result';
 
 const choices = {
-  rock: { emoji: '🪨', name: 'Rock' },
-  paper: { emoji: '📄', name: 'Paper' },
-  scissors: { emoji: '✂️', name: 'Scissors' }
+  rock: { emoji: '✊', name: 'Rock' },
+  paper: { emoji: '✋', name: 'Paper' },
+  scissors: { emoji: '✌️', name: 'Scissors' }
 };
 
 const computerEmojis = ['🤖', '👾'];
@@ -248,4 +248,5 @@ export default function RockPaperScissorsGame() {
     </div>
   );
 }
+
 
