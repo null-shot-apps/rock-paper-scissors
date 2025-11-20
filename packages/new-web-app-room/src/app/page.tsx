@@ -180,19 +180,19 @@ export default function RockPaperScissorsGame() {
             transform: translateX(0) translateY(0) scale(1); 
           }
           20% { 
-            transform: translateX(200px) translateY(-80px) scale(1.2); 
+            transform: translateX(400px) translateY(-80px) scale(1.2); 
           }
           40% { 
-            transform: translateX(500px) translateY(-120px) scale(1.4); 
+            transform: translateX(800px) translateY(-120px) scale(1.4); 
           }
           60% { 
-            transform: translateX(700px) translateY(-100px) scale(1.3); 
+            transform: translateX(1200px) translateY(-100px) scale(1.3); 
           }
           80% { 
-            transform: translateX(900px) translateY(-40px) scale(1.2); 
+            transform: translateX(1600px) translateY(-40px) scale(1.2); 
           }
           100% { 
-            transform: translateX(1000px) translateY(0) scale(1.5); 
+            transform: translateX(1800px) translateY(0) scale(1.5); 
           }
         }
         
@@ -201,19 +201,19 @@ export default function RockPaperScissorsGame() {
             transform: translateX(0) translateY(0) scale(1); 
           }
           20% { 
-            transform: translateX(-200px) translateY(-80px) scale(1.2); 
+            transform: translateX(-400px) translateY(-80px) scale(1.2); 
           }
           40% { 
-            transform: translateX(-500px) translateY(-120px) scale(1.4); 
+            transform: translateX(-800px) translateY(-120px) scale(1.4); 
           }
           60% { 
-            transform: translateX(-700px) translateY(-100px) scale(1.3); 
+            transform: translateX(-1200px) translateY(-100px) scale(1.3); 
           }
           80% { 
-            transform: translateX(-900px) translateY(-40px) scale(1.2); 
+            transform: translateX(-1600px) translateY(-40px) scale(1.2); 
           }
           100% { 
-            transform: translateX(-1000px) translateY(0) scale(1.5); 
+            transform: translateX(-1800px) translateY(0) scale(1.5); 
           }
         }
         
@@ -386,6 +386,8 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
 
 
 
