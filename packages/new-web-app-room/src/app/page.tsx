@@ -218,7 +218,7 @@ export default function RockPaperScissorsGame() {
         </div>
 
         {/* Choice Buttons */}
-        {gameState === 'choosing' && (
+        {(gameState === 'countdown' || gameState === 'choosing') && (
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(choices).map(([key, choice]) => (
               <button
@@ -249,6 +249,7 @@ export default function RockPaperScissorsGame() {
     </div>
   );
 }
+
 
 
 
