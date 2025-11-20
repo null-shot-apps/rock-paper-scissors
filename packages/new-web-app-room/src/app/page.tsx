@@ -34,7 +34,8 @@ export default function RockPaperScissorsGame() {
   };
 
   const determineWinner = (player: Choice, computer: Choice) => {
-    if (!player || !computer) return 'tie';
+    if (!player) return 'computer'; // Player loses if they don't choose
+    if (!computer) return 'player'; // Just in case
     if (player === computer) return 'tie';
     
     const winConditions = {
@@ -248,5 +249,6 @@ export default function RockPaperScissorsGame() {
     </div>
   );
 }
+
 
 
