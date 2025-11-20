@@ -31,6 +31,10 @@ export default function RockPaperScissorsGame() {
   const [computerAttacking, setComputerAttacking] = useState(false);
   const [playerHit, setPlayerHit] = useState(false);
   const [computerHit, setComputerHit] = useState(false);
+  const [playerFlying, setPlayerFlying] = useState(false);
+  const [computerFlying, setComputerFlying] = useState(false);
+  const [playerBouncing, setPlayerBouncing] = useState(false);
+  const [computerBouncing, setComputerBouncing] = useState(false);
 
   const getRandomChoice = (): Choice => {
     const choiceKeys = Object.keys(choices) as Choice[];
@@ -100,28 +104,36 @@ export default function RockPaperScissorsGame() {
       
       if (winner === 'player') {
         setResult('You Win!');
-        // Attack animation sequence
-        setPlayerAttacking(true);
+        // Pokemon-style flying attack animation
+        setPlayerFlying(true);
         setTimeout(() => {
+          // Player hits computer and bounces back
+          setPlayerBouncing(true);
           setComputerHit(true);
           setComputerHealth(prev => Math.max(0, prev - 1));
-        }, 500);
+        }, 600);
         setTimeout(() => {
-          setPlayerAttacking(false);
+          // Reset all animations
+          setPlayerFlying(false);
+          setPlayerBouncing(false);
           setComputerHit(false);
-        }, 1000);
+        }, 1200);
       } else if (winner === 'computer') {
         setResult('Computer Wins!');
-        // Attack animation sequence
-        setComputerAttacking(true);
+        // Pokemon-style flying attack animation
+        setComputerFlying(true);
         setTimeout(() => {
+          // Computer hits player and bounces back
+          setComputerBouncing(true);
           setPlayerHit(true);
           setPlayerHealth(prev => Math.max(0, prev - 1));
-        }, 500);
+        }, 600);
         setTimeout(() => {
-          setComputerAttacking(false);
+          // Reset all animations
+          setComputerFlying(false);
+          setComputerBouncing(false);
           setPlayerHit(false);
-        }, 1000);
+        }, 1200);
       } else {
         setResult('Tie!');
       }
@@ -162,6 +174,44 @@ export default function RockPaperScissorsGame() {
           25% { transform: translateX(-5px); }
           75% { transform: translateX(5px); }
         }
+        
+        @keyframes flyRight {
+          0% { transform: translateX(0) scale(1); }
+          50% { transform: translateX(400px) scale(1.2); }
+          100% { transform: translateX(400px) scale(1.2); }
+        }
+        
+        @keyframes flyLeft {
+          0% { transform: translateX(0) scale(1); }
+          50% { transform: translateX(-400px) scale(1.2); }
+          100% { transform: translateX(-400px) scale(1.2); }
+        }
+        
+        @keyframes bounceBack {
+          0% { transform: translateX(400px) scale(1.2); }
+          100% { transform: translateX(0) scale(1); }
+        }
+        
+        @keyframes bounceBackLeft {
+          0% { transform: translateX(-400px) scale(1.2); }
+          100% { transform: translateX(0) scale(1); }
+        }
+        
+        .flying-right {
+          animation: flyRight 0.6s ease-out forwards;
+        }
+        
+        .flying-left {
+          animation: flyLeft 0.6s ease-out forwards;
+        }
+        
+        .bouncing-right {
+          animation: bounceBack 0.3s ease-in forwards;
+        }
+        
+        .bouncing-left {
+          animation: bounceBackLeft 0.3s ease-in forwards;
+        }
       `}</style>
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
       {/* Title */}
@@ -189,7 +239,9 @@ export default function RockPaperScissorsGame() {
           {/* Player Fighter */}
           <div 
             className={`text-9xl transition-all duration-300 ${
-              playerAttacking ? 'transform translate-x-8' : ''
+              playerFlying ? 'flying-right' : ''
+            } ${
+              playerBouncing ? 'bouncing-right' : ''
             } ${
               playerHit ? 'animate-bounce bg-red-500 bg-opacity-30 rounded-full p-4' : ''
             }`}
@@ -255,7 +307,9 @@ export default function RockPaperScissorsGame() {
           {/* Computer Fighter */}
           <div 
             className={`text-9xl transition-all duration-300 ${
-              computerAttacking ? 'transform -translate-x-8' : ''
+              computerFlying ? 'flying-left' : ''
+            } ${
+              computerBouncing ? 'bouncing-left' : ''
             } ${
               computerHit ? 'animate-bounce bg-red-500 bg-opacity-30 rounded-full p-4' : ''
             }`}
@@ -300,6 +354,11 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
+
+
+
 
 
 
