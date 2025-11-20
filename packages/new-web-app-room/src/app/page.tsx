@@ -77,14 +77,15 @@ export default function RockPaperScissorsGame() {
     
     // Initialize flying buttons
     const initialButtons: typeof flyingButtons = {};
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
     
-    Object.keys(choices).forEach((key, index) => {
+    Object.keys(choices).forEach((key) => {
       initialButtons[key] = {
-        x: 200 + index * 300, // Start spread out
-        y: screenHeight - 200, // Start near bottom
-        vx: (Math.random() - 0.5) * 8, // Random horizontal velocity
-        vy: (Math.random() - 0.5) * 8, // Random vertical velocity
+        x: Math.random() * (screenWidth - 100), // Random X position across screen width
+        y: Math.random() * (screenHeight - 200), // Random Y position across screen height
+        vx: (Math.random() - 0.5) * 10, // Random horizontal velocity (-5 to 5)
+        vy: (Math.random() - 0.5) * 10, // Random vertical velocity (-5 to 5)
         id: key
       };
     });
@@ -513,6 +514,7 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
 
 
 
