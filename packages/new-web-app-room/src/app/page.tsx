@@ -57,7 +57,7 @@ export default function RockPaperScissorsGame() {
   };
 
   const handlePlayerChoice = (choice: Choice) => {
-    if (gameState === 'choosing') {
+    if (gameState === 'countdown' || gameState === 'choosing') {
       setPlayerChoice(choice);
     }
   };
@@ -249,6 +249,7 @@ export default function RockPaperScissorsGame() {
     </div>
   );
 }
+
 
 
 
