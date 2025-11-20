@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 type Choice = 'rock' | 'paper' | 'scissors' | null;
 type GameState = 'waiting' | 'countdown' | 'choosing' | 'reveal' | 'result';
@@ -26,15 +26,24 @@ export default function RockPaperScissorsGame() {
   const [computerEmoji, setComputerEmoji] = useState('🤖');
   const [countdown, setCountdown] = useState(3);
   const [result, setResult] = useState('');
-  const [gameStarted, setGameStarted] = useState(false);
-  const [playerAttacking, setPlayerAttacking] = useState(false);
-  const [computerAttacking, setComputerAttacking] = useState(false);
+
   const [playerHit, setPlayerHit] = useState(false);
   const [computerHit, setComputerHit] = useState(false);
   const [playerFlying, setPlayerFlying] = useState(false);
   const [computerFlying, setComputerFlying] = useState(false);
   const [playerBouncing, setPlayerBouncing] = useState(false);
   const [computerBouncing, setComputerBouncing] = useState(false);
+  
+  // Flying buttons state
+  const [flyingButtons, setFlyingButtons] = useState<{
+    [key: string]: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      id: string;
+    }
+  }>({});
 
   const getRandomChoice = (): Choice => {
     const choiceKeys = Object.keys(choices) as Choice[];
@@ -59,18 +68,38 @@ export default function RockPaperScissorsGame() {
     return winConditions[player] === computer ? 'player' : 'computer';
   };
 
-  const startGame = () => {
-    setGameStarted(true);
+  const startGame = useCallback(() => {
     setGameState('countdown');
     setCountdown(3);
     setPlayerChoice(null);
     setComputerChoice(null);
     setComputerEmoji(getRandomEmoji());
-  };
+    
+    // Initialize flying buttons
+    const initialButtons: typeof flyingButtons = {};
+    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+    
+    Object.keys(choices).forEach((key, index) => {
+      initialButtons[key] = {
+        x: 200 + index * 300, // Start spread out
+        y: screenHeight - 200, // Start near bottom
+        vx: (Math.random() - 0.5) * 8, // Random horizontal velocity
+        vy: (Math.random() - 0.5) * 8, // Random vertical velocity
+        id: key
+      };
+    });
+    setFlyingButtons(initialButtons);
+  }, []);
 
   const handlePlayerChoice = (choice: Choice) => {
     if (gameState === 'countdown' || gameState === 'choosing') {
       setPlayerChoice(choice);
+      // Remove the clicked button from flying buttons
+      setFlyingButtons(prev => {
+        const updated = { ...prev };
+        delete updated[choice as string];
+        return updated;
+      });
     }
   };
 
@@ -90,6 +119,8 @@ export default function RockPaperScissorsGame() {
           // Give player brief moment to choose, then reveal
           setTimeout(() => {
             setGameState('reveal');
+            // Stop flying buttons
+            setFlyingButtons({});
           }, 1000);
         }
       }, 1000);
@@ -97,6 +128,42 @@ export default function RockPaperScissorsGame() {
       return () => clearTimeout(timer);
     }
   }, [gameState, countdown]);
+
+  // Flying buttons animation
+  useEffect(() => {
+    if (gameState === 'countdown' || gameState === 'choosing') {
+      const animationFrame = setInterval(() => {
+        setFlyingButtons(prev => {
+          const updated = { ...prev };
+          const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+          const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+          
+          Object.keys(updated).forEach(key => {
+            const button = updated[key];
+            
+            // Update position
+            button.x += button.vx;
+            button.y += button.vy;
+            
+            // Bounce off walls (with some padding for button size)
+            const padding = 100;
+            if (button.x <= padding || button.x >= screenWidth - padding) {
+              button.vx = -button.vx;
+              button.x = Math.max(padding, Math.min(screenWidth - padding, button.x));
+            }
+            if (button.y <= padding || button.y >= screenHeight - padding) {
+              button.vy = -button.vy;
+              button.y = Math.max(padding, Math.min(screenHeight - padding, button.y));
+            }
+          });
+          
+          return updated;
+        });
+      }, 16); // ~60fps
+      
+      return () => clearInterval(animationFrame);
+    }
+  }, [gameState]);
 
   useEffect(() => {
     if (gameState === 'reveal') {
@@ -144,13 +211,11 @@ export default function RockPaperScissorsGame() {
       setTimeout(() => {
         if (playerHealth <= 1 && winner === 'computer') {
           setResult('Game Over! Computer Wins!');
-          setGameStarted(false);
           setPlayerHealth(10);
           setComputerHealth(10);
           setGameState('waiting');
         } else if (computerHealth <= 1 && winner === 'player') {
           setResult('Victory! You Win!');
-          setGameStarted(false);
           setPlayerHealth(10);
           setComputerHealth(10);
           setGameState('waiting');
@@ -162,7 +227,7 @@ export default function RockPaperScissorsGame() {
         }
       }, 2000);
     }
-  }, [gameState, playerChoice, computerChoice, playerHealth, computerHealth]);
+  }, [gameState, playerChoice, computerChoice, playerHealth, computerHealth, startGame]);
 
   const getHealthBarWidth = (health: number) => `${(health / 10) * 100}%`;
 
@@ -243,6 +308,36 @@ export default function RockPaperScissorsGame() {
         
         .bouncing-left {
           animation: bounceBackLeft 0.5s ease-in forwards;
+        }
+        
+        .flying-button {
+          position: fixed;
+          z-index: 1000;
+          transition: transform 0.1s ease;
+          cursor: pointer;
+          user-select: none;
+          pointer-events: auto;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(10px);
+        }
+        
+        .flying-button:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+          border-color: #fbbf24 !important;
+        }
+        
+        .flying-button:active {
+          transform: scale(0.9);
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        
+        .flying-button {
+          animation: pulse 2s infinite;
         }
       `}</style>
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
@@ -352,23 +447,42 @@ export default function RockPaperScissorsGame() {
         </div>
       </div>
 
-      {/* Choice Buttons - Bottom Center */}
+      {/* Flying Choice Buttons */}
+      {(gameState === 'countdown' || gameState === 'choosing') && (
+        <>
+          {Object.entries(flyingButtons).map(([key, button]) => (
+            <button
+              key={key}
+              onClick={() => handlePlayerChoice(key as Choice)}
+              className={`flying-button p-6 rounded-lg border-2 ${
+                playerChoice === key
+                  ? 'border-yellow-400 bg-yellow-400/20'
+                  : 'border-gray-600 hover:border-white bg-gray-800/90'
+              }`}
+              style={{
+                left: `${button.x - 50}px`,
+                top: `${button.y - 50}px`,
+              }}
+            >
+              <div className="text-4xl mb-1">{choices[key as keyof typeof choices].emoji}</div>
+              <div className="text-sm font-bold">{choices[key as keyof typeof choices].name}</div>
+            </button>
+          ))}
+        </>
+      )}
+
+      {/* Static Choice Buttons for non-flying states */}
       <div className="pb-8">
-        {(gameState === 'countdown' || gameState === 'choosing') && (
+        {gameState === 'waiting' && (
           <div className="flex justify-center gap-8">
             {Object.entries(choices).map(([key, choice]) => (
-              <button
+              <div
                 key={key}
-                onClick={() => handlePlayerChoice(key as Choice)}
-                className={`p-6 rounded-lg border-2 transition-all ${
-                  playerChoice === key
-                    ? 'border-yellow-400 bg-yellow-400/20'
-                    : 'border-gray-600 hover:border-white'
-                }`}
+                className="p-6 rounded-lg border-2 border-gray-600 bg-gray-800/50"
               >
                 <div className="text-5xl mb-2">{choice.emoji}</div>
                 <div className="text-lg font-bold">{choice.name}</div>
-              </button>
+              </div>
             ))}
           </div>
         )}
@@ -376,9 +490,22 @@ export default function RockPaperScissorsGame() {
         {/* Instructions */}
         {gameState === 'waiting' && (
           <div className="mt-8 text-center text-lg text-gray-300">
-            <p>Choose Rock, Paper, or Scissors during the countdown!</p>
-            <p>If you don&apos;t choose in time, you automatically lose!</p>
-            <p>First to 0 HP loses the battle!</p>
+            <p>🎯 Chase and click the flying buttons during countdown!</p>
+            <p>⚡ Buttons bounce around like Windows 98 screensaver!</p>
+            <p>⏰ If you don&apos;t catch one in time, you automatically lose!</p>
+            <p>💥 First to 0 HP loses the battle!</p>
+          </div>
+        )}
+        
+        {/* Choice confirmation */}
+        {playerChoice && (gameState === 'countdown' || gameState === 'choosing') && (
+          <div className="mt-4 text-center">
+            <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-400 rounded-lg px-4 py-2">
+              <span className="text-2xl">{choices[playerChoice].emoji}</span>
+              <span className="text-lg font-bold text-green-400">
+                {choices[playerChoice].name} Selected!
+              </span>
+            </div>
           </div>
         )}
       </div>
@@ -386,6 +513,25 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
