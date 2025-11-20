@@ -14,6 +14,10 @@ const choices = {
 const computerEmojis = ['🤖', '👾'];
 
 export default function RockPaperScissorsGame() {
+  // Add custom shake animation styles
+  const shakeStyle = {
+    animation: 'shake 0.5s ease-in-out'
+  };
   const [gameState, setGameState] = useState<GameState>('waiting');
   const [playerHealth, setPlayerHealth] = useState(10);
   const [computerHealth, setComputerHealth] = useState(10);
@@ -23,6 +27,10 @@ export default function RockPaperScissorsGame() {
   const [countdown, setCountdown] = useState(3);
   const [result, setResult] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
+  const [playerAttacking, setPlayerAttacking] = useState(false);
+  const [computerAttacking, setComputerAttacking] = useState(false);
+  const [playerHit, setPlayerHit] = useState(false);
+  const [computerHit, setComputerHit] = useState(false);
 
   const getRandomChoice = (): Choice => {
     const choiceKeys = Object.keys(choices) as Choice[];
@@ -92,10 +100,28 @@ export default function RockPaperScissorsGame() {
       
       if (winner === 'player') {
         setResult('You Win!');
-        setComputerHealth(prev => Math.max(0, prev - 1));
+        // Attack animation sequence
+        setPlayerAttacking(true);
+        setTimeout(() => {
+          setComputerHit(true);
+          setComputerHealth(prev => Math.max(0, prev - 1));
+        }, 500);
+        setTimeout(() => {
+          setPlayerAttacking(false);
+          setComputerHit(false);
+        }, 1000);
       } else if (winner === 'computer') {
         setResult('Computer Wins!');
-        setPlayerHealth(prev => Math.max(0, prev - 1));
+        // Attack animation sequence
+        setComputerAttacking(true);
+        setTimeout(() => {
+          setPlayerHit(true);
+          setPlayerHealth(prev => Math.max(0, prev - 1));
+        }, 500);
+        setTimeout(() => {
+          setComputerAttacking(false);
+          setPlayerHit(false);
+        }, 1000);
       } else {
         setResult('Tie!');
       }
@@ -129,50 +155,48 @@ export default function RockPaperScissorsGame() {
   const getHealthBarWidth = (health: number) => `${(health / 10) * 100}%`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
+    <>
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+      `}</style>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
       {/* Title */}
       <h1 className="text-4xl font-bold text-center py-4">
         Rock Paper Scissors Battle
       </h1>
 
-      {/* Health Bars */}
-      <div className="flex justify-between items-center px-16 mb-4">
-        <div className="flex-1 mr-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-lg">YOU</span>
-            <span className="text-sm">{playerHealth}/10 HP</span>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-6">
-            <div 
-              className="bg-green-500 h-6 rounded-full transition-all duration-500"
-              style={{ width: getHealthBarWidth(playerHealth) }}
-            />
-          </div>
-        </div>
-        <div className="flex-1 ml-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-lg">COMPUTER</span>
-            <span className="text-sm">{computerHealth}/10 HP</span>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-6">
-            <div 
-              className="bg-red-500 h-6 rounded-full transition-all duration-500"
-              style={{ width: getHealthBarWidth(computerHealth) }}
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Fighter Arena */}
       <div className="flex-1 flex items-center justify-between px-16">
         {/* Player Fighter */}
         <div className="flex flex-col items-center">
-          <div className={`text-9xl transition-transform duration-300 ${
-            gameState === 'result' && result?.includes('lose') ? 'animate-bounce' : ''
-          }`}>
+          {/* Player Health Bar */}
+          <div className="mb-4 w-48">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-lg">YOU</span>
+              <span className="text-sm">{playerHealth}/10 HP</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-4">
+              <div 
+                className="bg-green-500 h-4 rounded-full transition-all duration-1000"
+                style={{ width: getHealthBarWidth(playerHealth) }}
+              />
+            </div>
+          </div>
+          {/* Player Fighter */}
+          <div 
+            className={`text-9xl transition-all duration-300 ${
+              playerAttacking ? 'transform translate-x-8' : ''
+            } ${
+              playerHit ? 'animate-bounce bg-red-500 bg-opacity-30 rounded-full p-4' : ''
+            }`}
+            style={playerHit ? shakeStyle : {}}
+          >
             😎
           </div>
-          <div className="text-white text-2xl font-bold mt-4">YOU</div>
         </div>
 
         {/* Game State Display */}
@@ -215,12 +239,30 @@ export default function RockPaperScissorsGame() {
 
         {/* Computer Fighter */}
         <div className="flex flex-col items-center">
-          <div className={`text-9xl transition-transform duration-300 ${
-            gameState === 'result' && result?.includes('win') ? 'animate-bounce' : ''
-          }`}>
+          {/* Computer Health Bar */}
+          <div className="mb-4 w-48">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-lg">COMPUTER</span>
+              <span className="text-sm">{computerHealth}/10 HP</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-4">
+              <div 
+                className="bg-red-500 h-4 rounded-full transition-all duration-1000"
+                style={{ width: getHealthBarWidth(computerHealth) }}
+              />
+            </div>
+          </div>
+          {/* Computer Fighter */}
+          <div 
+            className={`text-9xl transition-all duration-300 ${
+              computerAttacking ? 'transform -translate-x-8' : ''
+            } ${
+              computerHit ? 'animate-bounce bg-red-500 bg-opacity-30 rounded-full p-4' : ''
+            }`}
+            style={computerHit ? shakeStyle : {}}
+          >
             {computerEmoji}
           </div>
-          <div className="text-white text-2xl font-bold mt-4">COMPUTER</div>
         </div>
       </div>
 
@@ -255,8 +297,18 @@ export default function RockPaperScissorsGame() {
         )}
       </div>
     </div>
+    </>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 
