@@ -95,12 +95,8 @@ export default function RockPaperScissorsGame() {
   const handlePlayerChoice = (choice: Choice) => {
     if (gameState === 'countdown' || gameState === 'choosing') {
       setPlayerChoice(choice);
-      // Remove the clicked button from flying buttons
-      setFlyingButtons(prev => {
-        const updated = { ...prev };
-        delete updated[choice as string];
-        return updated;
-      });
+      // Keep all buttons visible, just update the selected state
+      // The selected button will show with green glow
     }
   };
 
@@ -332,6 +328,24 @@ export default function RockPaperScissorsGame() {
           transform: scale(0.9);
         }
         
+        .flying-button.selected {
+          border-color: #10b981 !important;
+          background-color: rgba(16, 185, 129, 0.3) !important;
+          box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+          animation: selectedGlow 1.5s infinite;
+        }
+        
+        @keyframes selectedGlow {
+          0%, 100% { 
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+            transform: scale(1.1);
+          }
+          50% { 
+            box-shadow: 0 0 40px rgba(16, 185, 129, 1);
+            transform: scale(1.15);
+          }
+        }
+        
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
@@ -457,7 +471,7 @@ export default function RockPaperScissorsGame() {
               onClick={() => handlePlayerChoice(key as Choice)}
               className={`flying-button p-6 rounded-lg border-2 ${
                 playerChoice === key
-                  ? 'border-yellow-400 bg-yellow-400/20'
+                  ? 'selected border-green-500 bg-green-500/30'
                   : 'border-gray-600 hover:border-white bg-gray-800/90'
               }`}
               style={{
@@ -514,6 +528,9 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
+
 
 
 
