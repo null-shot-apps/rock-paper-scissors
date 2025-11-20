@@ -5,6 +5,46 @@ import { useEffect, useState, useCallback } from 'react';
 type Choice = 'rock' | 'paper' | 'scissors' | null;
 type GameState = 'waiting' | 'countdown' | 'choosing' | 'reveal' | 'result';
 
+// Cyberpunk background themes
+const cyberpunkThemes = [
+  {
+    name: 'Neon Pink',
+    gradient: 'from-pink-900 via-purple-900 to-blue-900',
+    accent: 'text-pink-400',
+    glow: 'shadow-pink-500/50'
+  },
+  {
+    name: 'Electric Blue',
+    gradient: 'from-blue-900 via-cyan-900 to-teal-900',
+    accent: 'text-cyan-400',
+    glow: 'shadow-cyan-500/50'
+  },
+  {
+    name: 'Toxic Green',
+    gradient: 'from-green-900 via-emerald-900 to-lime-900',
+    accent: 'text-green-400',
+    glow: 'shadow-green-500/50'
+  },
+  {
+    name: 'Neon Orange',
+    gradient: 'from-orange-900 via-red-900 to-pink-900',
+    accent: 'text-orange-400',
+    glow: 'shadow-orange-500/50'
+  },
+  {
+    name: 'Purple Matrix',
+    gradient: 'from-purple-900 via-violet-900 to-indigo-900',
+    accent: 'text-purple-400',
+    glow: 'shadow-purple-500/50'
+  },
+  {
+    name: 'Cyber Yellow',
+    gradient: 'from-yellow-900 via-amber-900 to-orange-900',
+    accent: 'text-yellow-400',
+    glow: 'shadow-yellow-500/50'
+  }
+];
+
 const choices = {
   rock: { emoji: '✊', name: 'Rock' },
   paper: { emoji: '✋', name: 'Paper' },
@@ -26,6 +66,11 @@ export default function RockPaperScissorsGame() {
   const [computerEmoji, setComputerEmoji] = useState('🤖');
   const [countdown, setCountdown] = useState(3);
   const [result, setResult] = useState('');
+  
+  // Cyberpunk background state
+  const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showThemeChange, setShowThemeChange] = useState(false);
 
   const [playerHit, setPlayerHit] = useState(false);
   const [computerHit, setComputerHit] = useState(false);
@@ -67,6 +112,18 @@ export default function RockPaperScissorsGame() {
     
     return winConditions[player] === computer ? 'player' : 'computer';
   };
+
+  const changeBackground = useCallback(() => {
+    setIsTransitioning(true);
+    setShowThemeChange(true);
+    setTimeout(() => {
+      setCurrentThemeIndex((prev) => (prev + 1) % cyberpunkThemes.length);
+      setIsTransitioning(false);
+    }, 300);
+    setTimeout(() => {
+      setShowThemeChange(false);
+    }, 2000);
+  }, []);
 
   const startGame = useCallback(() => {
     setGameState('countdown');
@@ -211,22 +268,32 @@ export default function RockPaperScissorsGame() {
           setPlayerHealth(10);
           setComputerHealth(10);
           setGameState('waiting');
+          // Change background after game over
+          changeBackground();
         } else if (computerHealth <= 1 && winner === 'player') {
           setResult('Victory! You Win!');
           setPlayerHealth(10);
           setComputerHealth(10);
           setGameState('waiting');
+          // Change background after victory
+          changeBackground();
         } else {
           // Continue game after 2 second pause
           setTimeout(() => {
-            startGame();
+            // Change background after each battle round
+            changeBackground();
+            setTimeout(() => {
+              startGame();
+            }, 500); // Small delay to let background transition
           }, 2000);
         }
       }, 2000);
     }
-  }, [gameState, playerChoice, computerChoice, playerHealth, computerHealth, startGame]);
+  }, [gameState, playerChoice, computerChoice, playerHealth, computerHealth, startGame, changeBackground]);
 
   const getHealthBarWidth = (health: number) => `${(health / 10) * 100}%`;
+  
+  const currentTheme = cyberpunkThemes[currentThemeIndex];
 
   return (
     <>
@@ -354,10 +421,133 @@ export default function RockPaperScissorsGame() {
         .flying-button {
           animation: pulse 2s infinite;
         }
+        
+        .background-transition {
+          transition: all 0.6s ease-in-out;
+        }
+        
+        .background-transition.transitioning {
+          filter: brightness(0.3) saturate(0.5);
+          transform: scale(1.02);
+        }
+        
+        @keyframes cyberpunkGlow {
+          0%, 100% { 
+            box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+          }
+          50% { 
+            box-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor;
+          }
+        }
+        
+        .cyberpunk-glow {
+          animation: cyberpunkGlow 2s infinite;
+        }
+        
+        .theme-indicator {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 1000;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: bold;
+          backdrop-filter: blur(10px);
+          border: 1px solid currentColor;
+          animation: cyberpunkGlow 3s infinite;
+        }
+        
+        @keyframes backgroundPulse {
+          0%, 100% { 
+            filter: brightness(1) saturate(1);
+          }
+          50% { 
+            filter: brightness(1.2) saturate(1.3);
+          }
+        }
+        
+        .battle-active {
+          animation: backgroundPulse 3s infinite;
+        }
+        
+        @keyframes themeChange {
+          0% { 
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.7;
+            transform: scale(1.05);
+            filter: brightness(2) saturate(2);
+          }
+          100% { 
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        .theme-changing {
+          animation: themeChange 0.6s ease-in-out;
+        }
+        
+        .cyberpunk-border {
+          border: 2px solid currentColor;
+          box-shadow: 
+            0 0 10px currentColor,
+            inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .theme-change-notification {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 2000;
+          padding: 20px 40px;
+          border-radius: 15px;
+          font-size: 24px;
+          font-weight: bold;
+          backdrop-filter: blur(20px);
+          border: 2px solid currentColor;
+          animation: themeNotification 2s ease-in-out;
+          pointer-events: none;
+        }
+        
+        @keyframes themeNotification {
+          0% { 
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+          }
+          20% { 
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+          }
+          80% { 
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          100% { 
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+          }
+        }
       `}</style>
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
+      <div className={`min-h-screen bg-gradient-to-br ${currentTheme.gradient} text-white flex flex-col background-transition ${isTransitioning ? 'theme-changing' : ''} ${(gameState === 'countdown' || gameState === 'choosing' || gameState === 'reveal') ? 'battle-active' : ''}`}>
+      {/* Theme Indicator */}
+      <div className={`theme-indicator ${currentTheme.accent} bg-black/30`}>
+        {currentTheme.name} Mode
+      </div>
+      
+      {/* Theme Change Notification */}
+      {showThemeChange && (
+        <div className={`theme-change-notification ${currentTheme.accent} bg-black/50`}>
+          🌈 {currentTheme.name} Mode Activated!
+        </div>
+      )}
+      
       {/* Title */}
-      <h1 className="text-4xl font-bold text-center py-4">
+      <h1 className={`text-4xl font-bold text-center py-4 cyberpunk-glow ${currentTheme.accent}`}>
         Rock Paper Scissors Battle
       </h1>
 
@@ -371,9 +561,9 @@ export default function RockPaperScissorsGame() {
               <span className="font-semibold text-lg">YOU</span>
               <span className="text-sm">{playerHealth}/10 HP</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-4">
+            <div className={`w-full bg-gray-700 rounded-full h-4 cyberpunk-border ${currentTheme.accent}`}>
               <div 
-                className="bg-green-500 h-4 rounded-full transition-all duration-1000"
+                className={`bg-green-500 h-4 rounded-full transition-all duration-1000 cyberpunk-glow`}
                 style={{ width: getHealthBarWidth(playerHealth) }}
               />
             </div>
@@ -398,25 +588,33 @@ export default function RockPaperScissorsGame() {
           {gameState === 'waiting' && (
             <div className="text-center">
               <p className="text-2xl mb-6">Ready for battle?</p>
-              <button
-                onClick={startGame}
-                className="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg text-2xl font-bold transition-colors"
-              >
-                START BATTLE
-              </button>
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={startGame}
+                  className={`bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg text-2xl font-bold transition-all cyberpunk-glow ${currentTheme.glow}`}
+                >
+                  START BATTLE
+                </button>
+                <button
+                  onClick={changeBackground}
+                  className={`bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-lg font-bold transition-all cyberpunk-glow ${currentTheme.glow}`}
+                >
+                  🌈 Change Theme
+                </button>
+              </div>
             </div>
           )}
 
           {gameState === 'countdown' && (
             <div className="text-center">
-              <p className="text-8xl font-bold mb-4">{countdown}</p>
+              <p className={`text-8xl font-bold mb-4 cyberpunk-glow ${currentTheme.accent}`}>{countdown}</p>
               <p className="text-2xl">Get ready...</p>
             </div>
           )}
 
           {gameState === 'choosing' && (
             <div className="text-center">
-              <p className="text-6xl font-bold mb-4 text-yellow-400">SHOOT!</p>
+              <p className={`text-6xl font-bold mb-4 cyberpunk-glow ${currentTheme.accent}`}>SHOOT!</p>
               <p className="text-2xl">Choose now!</p>
             </div>
           )}
@@ -426,7 +624,7 @@ export default function RockPaperScissorsGame() {
               <div className="text-4xl mb-4">
                 {playerChoice ? choices[playerChoice].emoji : '❓'} VS {computerChoice ? choices[computerChoice].emoji : '❓'}
               </div>
-              <p className="text-3xl font-bold">{result}</p>
+              <p className={`text-3xl font-bold cyberpunk-glow ${currentTheme.accent}`}>{result}</p>
             </div>
           )}
         </div>
@@ -439,9 +637,9 @@ export default function RockPaperScissorsGame() {
               <span className="font-semibold text-lg">COMPUTER</span>
               <span className="text-sm">{computerHealth}/10 HP</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-4">
+            <div className={`w-full bg-gray-700 rounded-full h-4 cyberpunk-border ${currentTheme.accent}`}>
               <div 
-                className="bg-red-500 h-4 rounded-full transition-all duration-1000"
+                className={`bg-red-500 h-4 rounded-full transition-all duration-1000 cyberpunk-glow`}
                 style={{ width: getHealthBarWidth(computerHealth) }}
               />
             </div>
@@ -509,15 +707,18 @@ export default function RockPaperScissorsGame() {
             <p>⚡ Buttons bounce around like Windows 98 screensaver!</p>
             <p>⏰ If you don&apos;t catch one in time, you automatically lose!</p>
             <p>💥 First to 0 HP loses the battle!</p>
+            <p className={`mt-4 ${currentTheme.accent} font-bold cyberpunk-glow`}>
+              🌈 Background changes after every battle!
+            </p>
           </div>
         )}
         
         {/* Choice confirmation */}
         {playerChoice && (gameState === 'countdown' || gameState === 'choosing') && (
           <div className="mt-4 text-center">
-            <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-400 rounded-lg px-4 py-2">
+            <div className={`inline-flex items-center gap-2 bg-green-600/20 border border-green-400 rounded-lg px-4 py-2 cyberpunk-glow ${currentTheme.glow}`}>
               <span className="text-2xl">{choices[playerChoice].emoji}</span>
-              <span className="text-lg font-bold text-green-400">
+              <span className={`text-lg font-bold ${currentTheme.accent}`}>
                 {choices[playerChoice].name} Selected!
               </span>
             </div>
@@ -528,6 +729,29 @@ export default function RockPaperScissorsGame() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
