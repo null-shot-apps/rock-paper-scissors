@@ -71,6 +71,11 @@ export default function RockPaperScissorsGame() {
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showThemeChange, setShowThemeChange] = useState(false);
+  
+  // Epic win screen state
+  const [showWinScreen, setShowWinScreen] = useState(false);
+  const [finalWinner, setFinalWinner] = useState<string | null>(null);
+  const [winScreenAnimation, setWinScreenAnimation] = useState(0);
 
   const [playerHit, setPlayerHit] = useState(false);
   const [computerHit, setComputerHit] = useState(false);
@@ -265,18 +270,26 @@ export default function RockPaperScissorsGame() {
       setTimeout(() => {
         if (playerHealth <= 1 && winner === 'computer') {
           setResult('Game Over! Computer Wins!');
-          setPlayerHealth(10);
-          setComputerHealth(10);
-          setGameState('waiting');
-          // Change background after game over
-          changeBackground();
+          // Trigger epic win screen for computer
+          setFinalWinner('Computer');
+          setShowWinScreen(true);
+          setWinScreenAnimation(0);
+          // Start win screen animation sequence
+          setTimeout(() => setWinScreenAnimation(1), 100);
+          setTimeout(() => setWinScreenAnimation(2), 1000);
+          setTimeout(() => setWinScreenAnimation(3), 2000);
+          setTimeout(() => setWinScreenAnimation(4), 3000);
         } else if (computerHealth <= 1 && winner === 'player') {
           setResult('Victory! You Win!');
-          setPlayerHealth(10);
-          setComputerHealth(10);
-          setGameState('waiting');
-          // Change background after victory
-          changeBackground();
+          // Trigger epic win screen for player
+          setFinalWinner('Player');
+          setShowWinScreen(true);
+          setWinScreenAnimation(0);
+          // Start win screen animation sequence
+          setTimeout(() => setWinScreenAnimation(1), 100);
+          setTimeout(() => setWinScreenAnimation(2), 1000);
+          setTimeout(() => setWinScreenAnimation(3), 2000);
+          setTimeout(() => setWinScreenAnimation(4), 3000);
         } else {
           // Continue game after 2 second pause
           setTimeout(() => {
@@ -292,6 +305,16 @@ export default function RockPaperScissorsGame() {
   }, [gameState, playerChoice, computerChoice, playerHealth, computerHealth, startGame, changeBackground]);
 
   const getHealthBarWidth = (health: number) => `${(health / 10) * 100}%`;
+  
+  const resetGame = () => {
+    setPlayerHealth(10);
+    setComputerHealth(10);
+    setGameState('waiting');
+    setShowWinScreen(false);
+    setFinalWinner(null);
+    setWinScreenAnimation(0);
+    changeBackground();
+  };
   
   const currentTheme = cyberpunkThemes[currentThemeIndex];
 
@@ -356,6 +379,28 @@ export default function RockPaperScissorsGame() {
           100% { transform: translateX(0) translateY(0) scale(1); }
         }
         
+        @keyframes cyberpunkGlow {
+          0%, 100% { 
+            text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
+          }
+          50% { 
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor, 0 0 40px currentColor;
+          }
+        }
+        
+        @keyframes matrixRain {
+          0% { transform: translateY(-100vh); opacity: 1; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        @keyframes glitchEffect {
+          0%, 100% { transform: translateX(0); }
+          20% { transform: translateX(-2px); }
+          40% { transform: translateX(2px); }
+          60% { transform: translateX(-1px); }
+          80% { transform: translateX(1px); }
+        }
+        
         .flying-right {
           animation: flyRight 1s ease-out forwards;
           z-index: 50;
@@ -372,6 +417,18 @@ export default function RockPaperScissorsGame() {
         
         .bouncing-left {
           animation: bounceBackLeft 0.5s ease-in forwards;
+        }
+        
+        .cyberpunk-glow {
+          animation: cyberpunkGlow 2s ease-in-out infinite;
+        }
+        
+        .matrix-rain {
+          animation: matrixRain 3s linear infinite;
+        }
+        
+        .glitch-text {
+          animation: glitchEffect 0.3s ease-in-out infinite;
         }
         
         .flying-button {
@@ -710,6 +767,38 @@ export default function RockPaperScissorsGame() {
             <p className={`mt-4 ${currentTheme.accent} font-bold cyberpunk-glow`}>
               🌈 Background changes after every battle!
             </p>
+            
+            {/* Test Win Screen Buttons */}
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setFinalWinner('Player');
+                  setShowWinScreen(true);
+                  setWinScreenAnimation(0);
+                  setTimeout(() => setWinScreenAnimation(1), 100);
+                  setTimeout(() => setWinScreenAnimation(2), 1000);
+                  setTimeout(() => setWinScreenAnimation(3), 2000);
+                  setTimeout(() => setWinScreenAnimation(4), 3000);
+                }}
+                className="px-4 py-2 bg-green-600/20 border border-green-400 rounded-lg text-green-300 hover:bg-green-500/30 transition-all cyberpunk-glow"
+              >
+                🏆 Test Player Win
+              </button>
+              <button
+                onClick={() => {
+                  setFinalWinner('Computer');
+                  setShowWinScreen(true);
+                  setWinScreenAnimation(0);
+                  setTimeout(() => setWinScreenAnimation(1), 100);
+                  setTimeout(() => setWinScreenAnimation(2), 1000);
+                  setTimeout(() => setWinScreenAnimation(3), 2000);
+                  setTimeout(() => setWinScreenAnimation(4), 3000);
+                }}
+                className="px-4 py-2 bg-red-600/20 border border-red-400 rounded-lg text-red-300 hover:bg-red-500/30 transition-all cyberpunk-glow"
+              >
+                💀 Test Computer Win
+              </button>
+            </div>
           </div>
         )}
         
@@ -725,10 +814,163 @@ export default function RockPaperScissorsGame() {
           </div>
         )}
       </div>
+
+      {/* Epic Cyberpunk Win Screen */}
+      {showWinScreen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Animated Background */}
+          <div 
+            className={`absolute inset-0 bg-gradient-to-br ${currentTheme.gradient} transition-all duration-1000 ${
+              winScreenAnimation >= 1 ? 'animate-pulse' : ''
+            }`}
+            style={{
+              background: winScreenAnimation >= 2 ? 
+                `radial-gradient(circle at center, ${finalWinner === 'Player' ? '#10b981' : '#ef4444'}, #000)` :
+                undefined
+            }}
+          />
+          
+          {/* Particle Effects */}
+          {winScreenAnimation >= 1 && (
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(50)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`absolute w-2 h-2 ${finalWinner === 'Player' ? 'bg-green-400' : 'bg-red-400'} rounded-full animate-ping`}
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 2}s`,
+                    animationDuration: `${1 + Math.random() * 2}s`
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          
+          {/* Main Win Content */}
+          <div className="relative z-10 text-center">
+            {/* Winner Announcement */}
+            <div 
+              className={`transform transition-all duration-1000 ${
+                winScreenAnimation >= 1 ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
+              }`}
+            >
+              <h1 className={`text-8xl font-black mb-8 ${
+                finalWinner === 'Player' ? 'text-green-400' : 'text-red-400'
+              } cyberpunk-glow animate-pulse`}>
+                {finalWinner === 'Player' ? '🏆 VICTORY! 🏆' : '💀 GAME OVER 💀'}
+              </h1>
+              
+              <div className={`text-6xl mb-8 ${
+                finalWinner === 'Player' ? 'text-green-300' : 'text-red-300'
+              }`}>
+                {finalWinner === 'Player' ? '🎉 YOU WIN! 🎉' : '🤖 COMPUTER WINS! 🤖'}
+              </div>
+            </div>
+            
+            {/* Epic Effects */}
+            {winScreenAnimation >= 2 && (
+              <div className="transform transition-all duration-1000 animate-bounce">
+                <div className={`text-4xl mb-8 ${
+                  finalWinner === 'Player' ? 'text-yellow-400' : 'text-orange-400'
+                }`}>
+                  ⚡ CYBERPUNK CHAMPION ⚡
+                </div>
+                
+                {/* Glitch Effect Text */}
+                <div className="relative">
+                  <div className={`text-2xl font-bold ${
+                    finalWinner === 'Player' ? 'text-green-200' : 'text-red-200'
+                  } animate-pulse`}>
+                    BATTLE COMPLETE
+                  </div>
+                  {winScreenAnimation >= 3 && (
+                    <div className="absolute inset-0 text-2xl font-bold text-white animate-ping opacity-50">
+                      BATTLE COMPLETE
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Fireworks Effect */}
+            {winScreenAnimation >= 3 && finalWinner === 'Player' && (
+              <div className="absolute inset-0 pointer-events-none">
+                {[...Array(20)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute text-4xl animate-ping"
+                    style={{
+                      left: `${20 + Math.random() * 60}%`,
+                      top: `${20 + Math.random() * 60}%`,
+                      animationDelay: `${Math.random() * 3}s`,
+                    }}
+                  >
+                    {['🎆', '✨', '💥', '🌟', '⭐'][Math.floor(Math.random() * 5)]}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Matrix Rain Effect for Computer Win */}
+            {winScreenAnimation >= 3 && finalWinner === 'Computer' && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {[...Array(30)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute text-green-400 text-xl font-mono animate-pulse opacity-70"
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      animationDelay: `${Math.random() * 2}s`,
+                    }}
+                  >
+                    {['0', '1', '01', '10', '001', '110'][Math.floor(Math.random() * 6)]}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Play Again Button */}
+            {winScreenAnimation >= 4 && (
+              <div className="mt-12 transform transition-all duration-500 animate-bounce">
+                <button
+                  onClick={resetGame}
+                  className={`px-12 py-6 text-2xl font-bold rounded-lg border-4 transition-all duration-300 hover:scale-110 cyberpunk-glow ${
+                    finalWinner === 'Player' 
+                      ? 'bg-green-600/20 border-green-400 text-green-300 hover:bg-green-500/30' 
+                      : 'bg-red-600/20 border-red-400 text-red-300 hover:bg-red-500/30'
+                  }`}
+                >
+                  🔄 PLAY AGAIN 🔄
+                </button>
+              </div>
+            )}
+          </div>
+          
+          {/* Screen Overlay Effects */}
+          {winScreenAnimation >= 2 && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div className={`absolute inset-0 ${
+                finalWinner === 'Player' ? 'bg-green-500/10' : 'bg-red-500/10'
+              } animate-pulse`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/50" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
     </>
   );
 }
+
+
+
+
+
+
+
 
 
 
