@@ -129,52 +129,59 @@ export default function RockPaperScissorsGame() {
   const getHealthBarWidth = (health: number) => `${(health / 10) * 100}%`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-4">
-      <div className="max-w-md mx-auto">
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-center mb-6">
-          Rock Paper Scissors Battle
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex flex-col">
+      {/* Title */}
+      <h1 className="text-4xl font-bold text-center py-4">
+        Rock Paper Scissors Battle
+      </h1>
 
-        {/* Health Bars */}
-        <div className="mb-8">
-          {/* Player Health */}
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-semibold">You</span>
-              <span className="text-sm">{playerHealth}/10 HP</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-4">
-              <div 
-                className="bg-green-500 h-4 rounded-full transition-all duration-500"
-                style={{ width: getHealthBarWidth(playerHealth) }}
-              />
-            </div>
+      {/* Health Bars */}
+      <div className="flex justify-between items-center px-16 mb-4">
+        <div className="flex-1 mr-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-lg">YOU</span>
+            <span className="text-sm">{playerHealth}/10 HP</span>
           </div>
-
-          {/* Computer Health */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-semibold">Computer {computerEmoji}</span>
-              <span className="text-sm">{computerHealth}/10 HP</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-4">
-              <div 
-                className="bg-red-500 h-4 rounded-full transition-all duration-500"
-                style={{ width: getHealthBarWidth(computerHealth) }}
-              />
-            </div>
+          <div className="w-full bg-gray-700 rounded-full h-6">
+            <div 
+              className="bg-green-500 h-6 rounded-full transition-all duration-500"
+              style={{ width: getHealthBarWidth(playerHealth) }}
+            />
           </div>
         </div>
+        <div className="flex-1 ml-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-lg">COMPUTER</span>
+            <span className="text-sm">{computerHealth}/10 HP</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-6">
+            <div 
+              className="bg-red-500 h-6 rounded-full transition-all duration-500"
+              style={{ width: getHealthBarWidth(computerHealth) }}
+            />
+          </div>
+        </div>
+      </div>
 
-        {/* Game Area */}
-        <div className="text-center mb-8">
+      {/* Fighter Arena */}
+      <div className="flex-1 flex items-center justify-between px-16">
+        {/* Player Fighter */}
+        <div className="flex flex-col items-center">
+          <div className={`text-9xl transition-transform duration-300 ${
+            gameState === 'result' && result?.includes('lose') ? 'animate-bounce' : ''
+          }`}>
+            😎
+          </div>
+          <div className="text-white text-2xl font-bold mt-4">YOU</div>
+        </div>
+
+          {/* Game State Display */}
           {gameState === 'waiting' && (
-            <div>
-              <p className="text-xl mb-6">Ready for battle?</p>
+            <div className="text-center">
+              <p className="text-2xl mb-6">Ready for battle?</p>
               <button
                 onClick={startGame}
-                className="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg text-xl font-bold transition-colors"
+                className="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg text-2xl font-bold transition-colors"
               >
                 START BATTLE
               </button>
@@ -182,44 +189,44 @@ export default function RockPaperScissorsGame() {
           )}
 
           {gameState === 'countdown' && (
-            <div>
-              <p className="text-6xl font-bold mb-4">{countdown}</p>
-              <p className="text-xl">Get ready...</p>
+            <div className="text-center">
+              <p className="text-8xl font-bold mb-4">{countdown}</p>
+              <p className="text-2xl">Get ready...</p>
             </div>
           )}
 
           {gameState === 'choosing' && (
-            <div>
-              <p className="text-4xl font-bold mb-4 text-yellow-400">SHOOT!</p>
-              <p className="text-lg">Choose now!</p>
+            <div className="text-center">
+              <p className="text-6xl font-bold mb-4 text-yellow-400">SHOOT!</p>
+              <p className="text-2xl">Choose now!</p>
             </div>
           )}
 
           {(gameState === 'reveal' || gameState === 'result') && (
-            <div>
-              <div className="flex justify-center items-center gap-8 mb-6">
-                <div className="text-center">
-                  <p className="text-sm mb-2">You</p>
-                  <div className="text-6xl">
-                    {playerChoice ? choices[playerChoice].emoji : '❓'}
-                  </div>
-                </div>
-                <div className="text-2xl">VS</div>
-                <div className="text-center">
-                  <p className="text-sm mb-2">Computer {computerEmoji}</p>
-                  <div className="text-6xl">
-                    {computerChoice ? choices[computerChoice].emoji : '❓'}
-                  </div>
-                </div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">
+                {playerChoice ? choices[playerChoice].emoji : '❓'} VS {computerChoice ? choices[computerChoice].emoji : '❓'}
               </div>
-              <p className="text-2xl font-bold">{result}</p>
+              <p className="text-3xl font-bold">{result}</p>
             </div>
           )}
         </div>
 
-        {/* Choice Buttons */}
+        {/* Computer Fighter */}
+        <div className="flex flex-col items-center">
+          <div className={`text-9xl transition-transform duration-300 ${
+            gameState === 'result' && result?.includes('win') ? 'animate-bounce' : ''
+          }`}>
+            {computerEmoji}
+          </div>
+          <div className="text-white text-2xl font-bold mt-4">COMPUTER</div>
+        </div>
+      </div>
+
+      {/* Choice Buttons - Bottom Center */}
+      <div className="pb-8">
         {(gameState === 'countdown' || gameState === 'choosing') && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex justify-center gap-8">
             {Object.entries(choices).map(([key, choice]) => (
               <button
                 key={key}
@@ -230,8 +237,8 @@ export default function RockPaperScissorsGame() {
                     : 'border-gray-600 hover:border-white'
                 }`}
               >
-                <div className="text-4xl mb-2">{choice.emoji}</div>
-                <div className="text-sm">{choice.name}</div>
+                <div className="text-5xl mb-2">{choice.emoji}</div>
+                <div className="text-lg font-bold">{choice.name}</div>
               </button>
             ))}
           </div>
@@ -239,16 +246,21 @@ export default function RockPaperScissorsGame() {
 
         {/* Instructions */}
         {gameState === 'waiting' && (
-          <div className="mt-8 text-center text-sm text-gray-300">
+          <div className="mt-8 text-center text-lg text-gray-300">
             <p>Choose Rock, Paper, or Scissors during the countdown!</p>
             <p>If you don't choose in time, you automatically lose!</p>
             <p>First to 0 HP loses the battle!</p>
           </div>
         )}
       </div>
+
+
     </div>
   );
 }
+
+
+
 
 
 
